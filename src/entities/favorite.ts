@@ -14,7 +14,7 @@ import { User } from './user';
   // 'favoriteUser'
 ])
 export class Favorite {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id?: number;
 
   @ManyToOne(() => User, (user) => user.favorites, { onDelete: 'CASCADE' })

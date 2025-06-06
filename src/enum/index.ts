@@ -1,2 +1,3 @@
 import { Gender, UserRole } from './user-enum';
-export { Gender, UserRole };
+import { DeviceType } from './device-enum';
+export { Gender, UserRole, DeviceType };

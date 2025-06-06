@@ -5,6 +5,7 @@ import { User } from '@/entities/user';
 import { IdCard } from '@/entities/id-card';
 import { SocialLink } from '@/entities/social-link';
 import { Favorite } from '@/entities/favorite';
+import { Device } from '@/entities/device';
 
 dotenv.config();
 export const AppDataSource = new DataSource({
@@ -17,5 +18,5 @@ export const AppDataSource = new DataSource({
   synchronize: true, //false in production
   logging: true,
   // entities: ["src/entity/**/*.ts"],
-  entities: [User, IdCard, SocialLink, Favorite],
+  entities: [User, IdCard, SocialLink, Favorite, Device],
 });

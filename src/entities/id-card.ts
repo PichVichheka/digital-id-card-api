@@ -12,7 +12,7 @@ import { Gender } from '@/enum';
 
 @Entity()
 export class IdCard {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id!: number;
 
   @OneToOne(() => User, (user) => user.idCard)
