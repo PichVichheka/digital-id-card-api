@@ -98,6 +98,7 @@ app.use(limiter);
  *  - Logs a success message if the disconnection is successful.
  *  - If an error occurs during disconnection, it is logged to the console.
  *  - Exist the process with status code `0` (indicating a successfully shutdown)
+ *
  */
 
 const handleServerShutdown = async () => {
