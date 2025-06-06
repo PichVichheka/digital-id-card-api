@@ -77,6 +77,15 @@ app.use(limiter);
 
 (async () => {
   try {
+    //Initialize database connection
+    await config.DATA_SOURCE.initialize()
+      .then(() => {
+        console.log('✅ Database connection successful');
+      })
+      .catch((error) => {
+        console.error('❌ Database connection failed:', error);
+      });
+
     app.use('/api/v1', v1Router);
 
     app.listen(3000, () => {
