@@ -44,7 +44,6 @@ export const registerService = async (req: Request, res: Response) => {
       username: user.user_name,
     });
 
-    // @ts-ignore
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
