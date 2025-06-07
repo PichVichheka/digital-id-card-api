@@ -8,16 +8,19 @@ export const authMiddleware = (
 ) => {
   // const authHeader = req.headers.authorization;
   const authHeader = req.cookies?.accessToken;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Unauthorized' });
+
+  if (!authHeader) {
+    res.status(401).json({ message: 'Unauthorized' });
+    return;
   }
 
-  const token = authHeader.split(' ')[1];
+  // const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!);
+    const decoded = jwt.verify(authHeader, process.env.ACCESS_TOKEN_SECRET!);
     (req as any).user = decoded;
     next();
   } catch (err) {
-    return res.status(403).json({ message: 'Invalid or expired token' });
+    res.status(403).json({ message: 'Invalid or expired token' });
+    return;
   }
 };

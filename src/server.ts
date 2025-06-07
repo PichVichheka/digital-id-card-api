@@ -27,6 +27,7 @@ import v1Router from '@/routes/v1';
  * Types
  */
 import type { CorsOptions } from 'cors';
+import { errorHandler } from './util/error-handler';
 
 /**
  * Express app initalization
@@ -56,6 +57,7 @@ const corsOptions: CorsOptions = {
 
 //Apply cors middleware
 app.use(cors(corsOptions));
+app.use(errorHandler);
 
 //Enable json parsing body
 app.use(express.json());

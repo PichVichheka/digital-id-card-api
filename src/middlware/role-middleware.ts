@@ -12,24 +12,20 @@ export const roleCheck = (allowedRoles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
       const authHeader = req.cookies?.accessToken;
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res
-          .status(401)
-          .json({ message: 'Unauthorized: No token provided' });
+      if (!authHeader) {
+        res.status(401).json({ message: 'Unauthorized: No token provided' });
       }
 
-      const token = authHeader.split(' ')[1];
+      // const token = authHeader.split(' ')[1];
       const secret = process.env.ACCESS_TOKEN_SECRET!; // use your secret
-      const decoded = jwt.verify(token, secret) as JwtPayload;
+      const decoded = jwt.verify(authHeader, secret) as JwtPayload;
 
       // Check if user roles exist and match allowedRoles
       if (
         !decoded.roles ||
         !decoded.roles.some((role) => allowedRoles.includes(role))
       ) {
-        return res
-          .status(403)
-          .json({ message: 'Forbidden: Insufficient role' });
+        res.status(403).json({ message: 'Forbidden: Insufficient role' });
       }
 
       // Optionally attach user info to req for later use
@@ -37,7 +33,8 @@ export const roleCheck = (allowedRoles: string[]) => {
 
       next(); // role allowed, continue
     } catch (error) {
-      return res.status(401).json({ message: 'Unauthorized: Invalid token' });
+      res.status(401).json({ message: 'Unauthorized: Invalid token' });
+      return;
     }
   };
 };
