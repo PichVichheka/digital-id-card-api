@@ -12,4 +12,7 @@ export class RegisterDto {
 
   @IsOptional()
   gender?: string;
+
+  @IsNotEmpty()
+  user_name!: string;
 }

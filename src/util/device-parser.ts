@@ -7,7 +7,6 @@ import { Request } from 'express';
 export const parseDevice = (req: Request) => {
   const agent = useragent.parse(req.headers['user-agent'] || '');
   const ip = requestIp.getClientIp(req) || 'unknown';
-
   return {
     ipAddress: ip,
     browser: agent.family,

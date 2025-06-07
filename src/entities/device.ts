@@ -6,6 +6,7 @@ import {
   Column,
   CreateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { DeviceType } from '@/enum';
 import { User } from './user';
@@ -28,9 +29,6 @@ export class Device {
   browser?: string;
 
   @Column()
-  user_agent?: string;
-
-  @Column()
   os?: string;
 
   @CreateDateColumn()
@@ -39,6 +37,7 @@ export class Device {
   @ManyToOne(() => User, (user) => user.devices, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'user_id' })
   user?: User;
 
   @CreateDateColumn()

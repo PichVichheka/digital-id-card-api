@@ -1,89 +1,115 @@
 import { AppDataSource } from '@/config/data-source';
-import { RegisterDto } from '@/dto/request-dto/register-dto';
-import { Device } from '@/entities/device';
+import jwt from 'jsonwebtoken';
 import { User } from '@/entities/user';
 import bcrypt from 'bcryptjs';
-import { saveDevice } from './device-service';
-import { parseDevice } from '@/util/device-parser';
 import { generateAccessToken, generateRefreshToken } from '@/util';
 import { UserRole } from '@/enum';
+import { Request, Response } from 'express';
+import { verifyRefreshToken } from '@/util/jwt';
+import { saveDeviceService } from './device-service';
 
-export const register = async (
-  register: RegisterDto,
-  req: Request,
-  res: Response,
-) => {
-  const userRepo = AppDataSource.getRepository(User);
-  const deviceRepo = AppDataSource.getRepository(Device);
+export const register = async (req: Request, res: Response) => {
+  try {
+    const { email, password, user_name, full_name } = req.body;
+    const userRepo = AppDataSource.getRepository(User);
+    const existingUser = await userRepo.findOne({
+      where: {
+        email: email,
+      },
+    });
+    if (existingUser) {
+      return {
+        status: 400,
+        message: 'Email already exists',
+      };
+    }
+    const hashPassword = await bcrypt.hash(password, 12);
+    const user = userRepo.create({
+      full_name: full_name,
+      email: email,
+      password: hashPassword,
+      user_name: user_name,
+    });
+    await userRepo.save(user);
+    const accessToken = generateAccessToken({
+      user_id: user.id.toString(),
+      roles: user.roles as UserRole[],
+      email: user.email,
+      username: user.user_name,
+    });
+    const refreshToken = generateRefreshToken({
+      user_id: user.id.toString(),
+      roles: user.roles as UserRole[],
+      email: user.email,
+      username: user.user_name,
+    });
 
-  const existingUser = await userRepo.findOne({
-    where: {
-      email: register.email,
-    },
-  });
-  if (existingUser) {
+    // @ts-ignore
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    //call device service
+    const device = await saveDeviceService(user.id, req);
     return {
-      status: 400,
-      message: 'Email already exists',
+      status: 201,
+      message: 'Register success',
+      data: {
+        user,
+        accessToken,
+        refreshToken,
+        device,
+      },
     };
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
-  const hashPassword = await bcrypt.hash(register.password, 12);
-  const user = userRepo.create({
-    full_name: register.full_name,
-    email: register.email,
-    password: hashPassword,
-  });
-  await userRepo.save(user);
-  const accessToken = generateAccessToken({
-    user_id: user.id.toString(),
-    roles: user.roles as UserRole[],
-    email: user.email,
-    username: user.user_name,
-  });
-  const refreshToken = generateRefreshToken({
-    user_id: user.id.toString(),
-    roles: user.roles as UserRole[],
-    email: user.email,
-    username: user.user_name,
-  });
-
-  // @ts-ignore
-  res.cookie('refreshToken', refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
-
-  const deviceInfo = parseDevice(req as any);
-  const device = await saveDevice(user.id.toString(), deviceInfo);
-
-  return {
-    status: 200,
-    message: 'Register success',
-    data: {
-      user,
-      accessToken,
-      refreshToken,
-      device,
-    },
-  };
 };
 
-// export const refreshToken = async (req: Request, res: Response) => {
-//   const token = req.cookies.refreshToken;
-//   if (!token) return res.status(401).json({ message: 'No token provided' });
+// POST /auth/refresh-token
+export const refreshTokenHandler = async (req: Request, res: Response) => {
+  const userRepo = AppDataSource.getRepository(User);
+  const refreshToken = req.cookies?.refresh_token || req.body.refreshToken;
 
-//   try {
-//     const payload = await UserService.verifyRefreshToken(token);
-//     const accessToken = generateAccessToken({ userId: payload.userId });
-//     res.json({ accessToken });
-//   } catch {
-//     res.status(403).json({ message: 'Invalid or expired refresh token' });
-//   }
-// };
+  if (!refreshToken) {
+    return res.status(401).json({ message: 'Refresh token missing' });
+  }
 
-// export const logout = async (req: Request, res: Response) => {
-//   res.clearCookie('refreshToken');
-//   res.json({ message: 'Logged out successfully' });
-// };
+  try {
+    // 1. Verify the refresh token
+    const payload = verifyRefreshToken(refreshToken) as any;
+
+    // 2. (Optional) Check if token is in database
+    const user = await userRepo.findOneBy(payload.user_id);
+
+    if (!user) return res.status(401).json({ message: 'Invalid token' });
+
+    // 3. Generate a new access toke
+    const newAccessToken = jwt.sign(
+      { userId: user.id },
+      process.env.ACCESS_TOKEN_SECRET as string,
+      { expiresIn: '15m' },
+    );
+
+    return res.json({ accessToken: newAccessToken });
+  } catch (error) {
+    return res.status(403).json({ message: 'Invalid refresh token' });
+  }
+};
+
+export const logout = async (req: Request, res: Response) => {
+  (res as any)
+    .clearCookie('refreshToken')
+    .res.json({ message: 'Logged out successfully' });
+};

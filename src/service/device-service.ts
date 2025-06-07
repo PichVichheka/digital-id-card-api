@@ -1,19 +1,20 @@
-// src/device/device.service.ts
-
 import { AppDataSource } from '@/config/data-source';
 import { DeviceDto } from '@/dto/request-dto/device-dto';
 import { Device } from '@/entities/device';
 import { User } from '@/entities/user';
+import { Request, Response } from 'express';
 
-export const saveDevice = async (userId: string, dataDevice: DeviceDto) => {
+export const saveDeviceService = async (userId: number, req: Request) => {
+  const { device_name, device_type, ip_address, browser, os } = req.body;
   const deviceRepo = AppDataSource.getRepository(Device);
   const device = deviceRepo.create({
-    ...dataDevice,
-    device_name: dataDevice.device_name,
-    ip_address: dataDevice.ip_address,
-    browser: dataDevice.browser,
-    os: dataDevice.os,
-    user: { id: userId } as unknown as User,
+    device_name,
+    device_type,
+    ip_address,
+    browser,
+    os,
+    user: { id: userId },
   });
   await deviceRepo.save(device);
+  return device;
 };
