@@ -13,7 +13,7 @@ const router = Router();
 /**
  * Routes
  */
-import authRouter from './auth';
+import authRouter from './auth-route';
 
 /**
  * Root route

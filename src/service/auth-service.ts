@@ -8,7 +8,7 @@ import { Request, Response } from 'express';
 import { verifyRefreshToken } from '@/util/jwt';
 import { saveDeviceService } from './device-service';
 
-export const register = async (req: Request, res: Response) => {
+export const registerService = async (req: Request, res: Response) => {
   try {
     const { email, password, user_name, full_name } = req.body;
     const userRepo = AppDataSource.getRepository(User);
@@ -77,10 +77,56 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
+// POST /auth/login
+export const loginService = async (req: Request, res: Response) => {
+  const { email, password, user_name } = req.body;
+  const userRepo = AppDataSource.getRepository(User);
+  try {
+    const existUser = await userRepo.findOne({
+      where: {
+        email,
+        user_name,
+      },
+    });
+    if (!existUser) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+    const isPasswordValid = await bcrypt.compare(password, existUser.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+    const accessToken = generateAccessToken({
+      user_id: existUser.id.toString(),
+      roles: existUser.roles as UserRole[],
+      email: existUser.email,
+      username: existUser.user_name,
+    });
+    const refreshToken = generateRefreshToken({
+      user_id: existUser.id.toString(),
+      roles: existUser.roles as UserRole[],
+      email: existUser.email,
+      username: existUser.user_name,
+    });
+
+    return {
+      status: 200,
+      message: 'Login success',
+      data: {
+        user: existUser,
+        accessToken,
+        refreshToken,
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 // POST /auth/refresh-token
 export const refreshTokenHandler = async (req: Request, res: Response) => {
   const userRepo = AppDataSource.getRepository(User);
-  const refreshToken = req.cookies?.refresh_token || req.body.refreshToken;
+  const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
 
   if (!refreshToken) {
     return res.status(401).json({ message: 'Refresh token missing' });
@@ -91,7 +137,7 @@ export const refreshTokenHandler = async (req: Request, res: Response) => {
     const payload = verifyRefreshToken(refreshToken) as any;
 
     // 2. (Optional) Check if token is in database
-    const user = await userRepo.findOneBy(payload.user_id);
+    const user = await userRepo.findOneBy({ id: payload.user_id });
 
     if (!user) return res.status(401).json({ message: 'Invalid token' });
 
@@ -108,8 +154,8 @@ export const refreshTokenHandler = async (req: Request, res: Response) => {
   }
 };
 
-export const logout = async (req: Request, res: Response) => {
-  (res as any)
-    .clearCookie('refreshToken')
-    .res.json({ message: 'Logged out successfully' });
+export const logoutService = async (req: Request, res: Response) => {
+  res.clearCookie('refreshToken');
+  res.clearCookie('accessToken');
+  return res.json({ message: 'Logged out successfully' });
 };
