@@ -1,5 +1,3 @@
-// src/entities/device.entity.ts
-
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -8,7 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { DeviceType } from '@/enum';
+
 import { User } from './user';
 
 @Entity()

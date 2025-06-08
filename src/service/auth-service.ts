@@ -155,13 +155,26 @@ export const refreshTokenHandler = async (req: Request, res: Response) => {
     if (!user) return res.status(401).json({ message: 'Invalid token' });
 
     // 3. Generate a new access toke
-    const newAccessToken = jwt.sign(
-      { userId: user.id },
-      process.env.ACCESS_TOKEN_SECRET as string,
-      { expiresIn: '15m' },
-    );
+    // const newAccessToken = jwt.sign(
+    //   { userId: user.id },
+    //   process.env.ACCESS_TOKEN_SECRET as string,
+    //   { expiresIn: '15m' },
+    // );
+    const accessToken = generateAccessToken({
+      user_id: user.id.toString(),
+      roles: user.roles as UserRole[],
+      email: user.email,
+      username: user.user_name,
+    });
 
-    return res.json({ accessToken: newAccessToken });
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.json({ accessToken: accessToken });
   } catch (error) {
     return res.status(403).json({ message: 'Invalid refresh token' });
   }

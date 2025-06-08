@@ -1,6 +1,7 @@
 import { AppDataSource } from '@/config/data-source';
 import { User } from '@/entities/user';
 import { paginate } from '@/util';
+import { Request } from 'express';
 
 export const getUsersService = async ({
   page,
@@ -24,4 +25,10 @@ export const getUsersService = async ({
     sortOrder,
     filters,
   });
+};
+
+export const meService = async (req: Request) => {
+  const userId = req.user?.user_id;
+  console.log(userId);
+  return await AppDataSource.getRepository(User).findOneBy({ id: userId });
 };

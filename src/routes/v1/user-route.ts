@@ -1,4 +1,4 @@
-import { getUsersController } from '@/controller';
+import { getUsersController, meController } from '@/controller';
 import { UserRole } from '@/enum';
 import { authMiddleware } from '@/middlware/auth-middleware';
 import { roleCheck } from '@/middlware/role-middleware';
@@ -11,5 +11,6 @@ router.get(
   roleCheck([UserRole.ADMIN, UserRole.SUPER_ADMIN]),
   getUsersController,
 );
+router.get('/me', authMiddleware, meController);
 
 export default router;

@@ -1,4 +1,4 @@
-import { getUsersService } from '@/service/user-service';
+import { getUsersService, meService } from '@/service/user-service';
 import { Request, Response } from 'express';
 
 export const getUsersController = async (
@@ -15,5 +15,13 @@ export const getUsersController = async (
       : 'DESC') as 'ASC' | 'DESC',
     filters: filters as Record<string, string>,
   });
+  res.status(201).json(result);
+};
+
+export const meController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const result = await meService(req as any);
   res.status(201).json(result);
 };
