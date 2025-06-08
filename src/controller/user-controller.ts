@@ -1,4 +1,8 @@
-import { getUsersService, meService } from '@/service/user-service';
+import {
+  getUsersService,
+  meService,
+  updateUserService,
+} from '@/service/user-service';
 import { Request, Response } from 'express';
 
 export const getUsersController = async (
@@ -22,6 +26,11 @@ export const meController = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const result = await meService(req as any);
+  const result = await meService(req);
+  res.status(201).json(result);
+};
+
+export const updateUserController = async (req: Request, res: Response) => {
+  const result = await updateUserService(req, res);
   res.status(201).json(result);
 };

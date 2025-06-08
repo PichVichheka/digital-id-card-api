@@ -1,4 +1,8 @@
-import { getUsersController, meController } from '@/controller';
+import {
+  getUsersController,
+  meController,
+  updateUserController,
+} from '@/controller';
 import { UserRole } from '@/enum';
 import { authMiddleware } from '@/middlware/auth-middleware';
 import { roleCheck } from '@/middlware/role-middleware';
@@ -12,5 +16,6 @@ router.get(
   getUsersController,
 );
 router.get('/me', authMiddleware, meController);
+router.put('/update-profile', authMiddleware, updateUserController);
 
 export default router;
