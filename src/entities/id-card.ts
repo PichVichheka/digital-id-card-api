@@ -13,7 +13,7 @@ import { Gender } from '@/enum';
 @Entity()
 export class IdCard {
   @PrimaryGeneratedColumn('uuid')
-  id!: number;
+  id!: string;
 
   @OneToOne(() => User, (user) => user.idCard)
   @JoinColumn()

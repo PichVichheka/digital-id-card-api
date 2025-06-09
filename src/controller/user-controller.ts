@@ -1,4 +1,5 @@
 import {
+  deleteUserService,
   getUsersService,
   meService,
   updateUserService,
@@ -33,4 +34,11 @@ export const meController = async (
 export const updateUserController = async (req: Request, res: Response) => {
   const result = await updateUserService(req, res);
   res.status(201).json(result);
+};
+
+export const DeleteUserController = async (req: Request, res: Response) => {
+  await deleteUserService(req, res);
+  res.status(201).json({
+    message: 'Deleted this user successfully',
+  });
 };

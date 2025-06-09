@@ -4,7 +4,7 @@ import { Device } from '@/entities/device';
 import { User } from '@/entities/user';
 import { Request, Response } from 'express';
 
-export const saveDeviceService = async (userId: number, req: Request) => {
+export const saveDeviceService = async (userId: string, req: Request) => {
   const { device_name, device_type, ip_address, browser, os } = req.body;
   const deviceRepo = AppDataSource.getRepository(Device);
   const device = deviceRepo.create({

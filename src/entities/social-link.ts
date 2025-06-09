@@ -11,7 +11,7 @@ import { User } from './user';
 @Entity()
 export class SocialLink {
   @PrimaryGeneratedColumn('uuid')
-  id?: number;
+  id!: string;
 
   @ManyToOne(() => User, (user) => user.socialLinks, { onDelete: 'CASCADE' })
   user?: User;

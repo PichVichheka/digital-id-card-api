@@ -49,7 +49,7 @@ export const meService = async (req: Request) => {
  *
  * - path /api/v1/users/update-profile - Update user profile
  * - method: PUT
- * - roles: [USER, ADMIN]
+ * - roles: [USER, ADMIN,SUPER_ADMIN]
  */
 export const updateUserService = async (req: Request, res: Response) => {
   const userId = req.user?.user_id;
@@ -82,4 +82,28 @@ export const updateUserService = async (req: Request, res: Response) => {
   });
 };
 
-// export const
+/**
+ *
+ * - path /api/v1/users/update-profile - Update user profile
+ * - method: DELETE
+ * - roles: [ADMIN,SUPER_ADMIN]
+ */
+export const deleteUserService = async (req: Request, res: Response) => {
+  const userId = req.params?.id as string;
+
+  const findUser = await AppDataSource.getRepository(User).findOneBy({
+    id: userId,
+  });
+  if (!findUser) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  const user = await AppDataSource.getRepository(User).update(
+    { id: userId },
+    {
+      is_deleted: true,
+      updated_at: new Date(),
+    },
+  );
+  return user;
+};

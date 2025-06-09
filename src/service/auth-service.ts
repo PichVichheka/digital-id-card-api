@@ -1,5 +1,4 @@
 import { AppDataSource } from '@/config/data-source';
-import jwt from 'jsonwebtoken';
 import { User } from '@/entities/user';
 import bcrypt from 'bcryptjs';
 import { generateAccessToken, generateRefreshToken } from '@/util';
@@ -95,7 +94,7 @@ export const loginService = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
     const accessToken = generateAccessToken({
-      user_id: existUser.id.toString(),
+      user_id: existUser?.id.toString(),
       roles: existUser.roles as UserRole[],
       email: existUser.email,
       username: existUser.user_name,

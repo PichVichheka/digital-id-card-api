@@ -1,4 +1,5 @@
 import {
+  DeleteUserController,
   getUsersController,
   meController,
   updateUserController,
@@ -17,5 +18,11 @@ router.get(
 );
 router.get('/me', authMiddleware, meController);
 router.put('/update-profile', authMiddleware, updateUserController);
+router.delete(
+  '/delete-user/:id',
+  authMiddleware,
+  roleCheck([UserRole.ADMIN, UserRole.SUPER_ADMIN]),
+  DeleteUserController,
+);
 
 export default router;
