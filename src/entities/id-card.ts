@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
   CreateDateColumn,
   OneToMany,
+  ManyToOne,
 } from 'typeorm';
 import { User } from './user';
 import { Gender } from '@/enum';
@@ -17,8 +18,10 @@ export class IdCard {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @OneToOne(() => User, (user) => user.idCard)
-  @JoinColumn()
+  // @OneToOne(() => User, (user) => user.idCard)
+  // @JoinColumn()
+  // user?: User;
+  @ManyToOne(() => User, (user) => user.idCard, { onDelete: 'CASCADE' })
   user?: User;
 
   @Column({

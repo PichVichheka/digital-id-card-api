@@ -5,10 +5,12 @@ import {
   ManyToOne,
   UpdateDateColumn,
   CreateDateColumn,
+  Unique,
 } from 'typeorm';
 import { IdCard } from './id-card';
 
 @Entity()
+// @Unique(['card', 'platform']) // Prevent same platform for same card
 export class SocialLink {
   @PrimaryGeneratedColumn('uuid')
   id!: string;

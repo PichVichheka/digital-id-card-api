@@ -55,8 +55,8 @@ export class User {
   @OneToMany(() => Device, (device) => device.user)
   devices?: Device[];
 
-  @OneToOne(() => IdCard, (idCard) => idCard.user, { cascade: true })
-  idCard?: IdCard;
+  @OneToMany(() => IdCard, (idCard) => idCard.user, { cascade: true })
+  idCard?: IdCard[];
 
   // @OneToMany(() => SocialLink, (link) => link.user)
   // socialLinks?: SocialLink[];
