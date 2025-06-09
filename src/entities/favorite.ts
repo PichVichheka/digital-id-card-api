@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   Unique,
   UpdateDateColumn,
+  Column,
 } from 'typeorm';
 import { User } from './user';
 
@@ -25,6 +26,9 @@ export class Favorite {
 
   @CreateDateColumn()
   created_at?: Date;
+
+  @Column({ default: false })
+  is_deleted?: boolean;
 
   @UpdateDateColumn()
   updated_at?: Date;

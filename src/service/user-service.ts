@@ -3,6 +3,12 @@ import { User } from '@/entities/user';
 import { paginate } from '@/util';
 import { Request, Response } from 'express';
 
+/**
+ *
+ * - path /users/me - get user profile
+ * - method: PUT
+ * - roles: [USER, ADMIN]
+ */
 export const getUsersService = async ({
   page,
   limit,
@@ -16,6 +22,11 @@ export const getUsersService = async ({
   sortOrder: 'ASC' | 'DESC';
   filters: Record<string, string>;
 }) => {
+  // const userRepo = await AppDataSource.getRepository(User)
+  //   .createQueryBuilder('user')
+  //   .leftJoinAndSelect('user.devices', 'devices')
+  //   .getMany();
+  // return userRepo;
   const userRepo = AppDataSource.getRepository(User);
 
   return await paginate(userRepo, {
@@ -24,6 +35,7 @@ export const getUsersService = async ({
     sortBy,
     sortOrder,
     filters,
+    relations: ['devices'],
   });
 };
 
@@ -33,6 +45,12 @@ export const meService = async (req: Request) => {
   return await AppDataSource.getRepository(User).findOneBy({ id: userId });
 };
 
+/**
+ *
+ * - path /api/v1/users/update-profile - Update user profile
+ * - method: PUT
+ * - roles: [USER, ADMIN]
+ */
 export const updateUserService = async (req: Request, res: Response) => {
   const userId = req.user?.user_id;
   const { full_name, email, user_name, avatar } = req.body;
@@ -63,3 +81,5 @@ export const updateUserService = async (req: Request, res: Response) => {
     user: updatedUser,
   });
 };
+
+// export const

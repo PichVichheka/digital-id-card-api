@@ -35,6 +35,9 @@ export class IdCard {
   @Column()
   qr_url?: string;
 
+  @Column({ default: false })
+  is_deleted?: boolean;
+
   @Column()
   theme_color?: string;
 

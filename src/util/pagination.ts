@@ -6,6 +6,7 @@ export interface PaginationParams {
   sortBy?: string;
   sortOrder?: 'ASC' | 'DESC';
   filters?: Record<string, any>;
+  relations?: string[];
 }
 
 export interface PaginationResult<T> {
@@ -28,10 +29,15 @@ export const paginate = async <T extends ObjectLiteral>(
     sortBy = 'created_at',
     sortOrder = 'DESC',
     filters = {},
+    relations = [],
   } = options;
   const skip = (page - 1) * limit;
 
   let qb = repo.createQueryBuilder('entity').skip(skip).take(limit);
+  // Dynamically join relations
+  for (const relation of relations) {
+    qb = qb.leftJoinAndSelect(`entity.${relation}`, relation);
+  }
 
   // Add filters dynamically
   for (const key in filters) {

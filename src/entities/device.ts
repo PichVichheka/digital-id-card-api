@@ -29,6 +29,9 @@ export class Device {
   @Column()
   os?: string;
 
+  @Column({ default: false })
+  is_deleted?: boolean;
+
   @CreateDateColumn()
   logged_in_at?: Date;
 

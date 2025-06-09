@@ -32,6 +32,9 @@ export class User {
   @Column({ nullable: true })
   avatar?: string;
 
+  @Column({ default: false })
+  is_deleted?: boolean;
+
   // @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
   // role?: UserRole;
 

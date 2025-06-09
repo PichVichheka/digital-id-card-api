@@ -22,6 +22,9 @@ export class SocialLink {
   @Column()
   url?: string;
 
+  @Column({ default: false })
+  is_deleted?: boolean;
+
   @UpdateDateColumn()
   updated_at?: Date;
 
