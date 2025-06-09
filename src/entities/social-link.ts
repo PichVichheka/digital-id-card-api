@@ -6,21 +6,26 @@ import {
   UpdateDateColumn,
   CreateDateColumn,
 } from 'typeorm';
-import { User } from './user';
+import { IdCard } from './id-card';
 
 @Entity()
 export class SocialLink {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @ManyToOne(() => User, (user) => user.socialLinks, { onDelete: 'CASCADE' })
-  user?: User;
+  // @ManyToOne(() => User, (user) => user.socialLinks, { onDelete: 'CASCADE' })
+  // user?: User;
+  @ManyToOne(() => IdCard, (card) => card.socialLinks, { onDelete: 'CASCADE' })
+  card?: IdCard;
 
   @Column()
   platform?: string; // e.g., Twitter, GitHub, LinkedIn
 
   @Column()
   url?: string;
+
+  @Column()
+  icon?: string;
 
   @Column({ default: false })
   is_deleted?: boolean;

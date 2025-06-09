@@ -6,9 +6,11 @@ import {
   JoinColumn,
   UpdateDateColumn,
   CreateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from './user';
 import { Gender } from '@/enum';
+import { SocialLink } from './social-link';
 
 @Entity()
 export class IdCard {
@@ -33,13 +35,28 @@ export class IdCard {
   address?: string;
 
   @Column()
+  phone?: string;
+
+  @Column()
+  nationality?: string;
+
+  @Column({ nullable: true })
   qr_url?: string;
+
+  @Column({ nullable: true })
+  qr_code?: string;
+
+  @Column({ default: true })
+  is_active?: boolean;
 
   @Column({ default: false })
   is_deleted?: boolean;
 
-  @Column()
+  @Column({ nullable: true })
   theme_color?: string;
+
+  @OneToMany(() => SocialLink, (link) => link.card)
+  socialLinks?: SocialLink[];
 
   @UpdateDateColumn()
   updated_at?: Date;

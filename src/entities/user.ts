@@ -58,8 +58,8 @@ export class User {
   @OneToOne(() => IdCard, (idCard) => idCard.user, { cascade: true })
   idCard?: IdCard;
 
-  @OneToMany(() => SocialLink, (link) => link.user)
-  socialLinks?: SocialLink[];
+  // @OneToMany(() => SocialLink, (link) => link.user)
+  // socialLinks?: SocialLink[];
 
   @OneToMany(() => Favorite, (fav) => fav.user)
   favorites?: Favorite[];
