@@ -20,6 +20,14 @@ export const createCardService = async (req: Request, res: Response) => {
   const cardRepo = AppDataSource.getRepository(IdCard);
   const socialLinkRepo = AppDataSource.getRepository(SocialLink);
   const userId = req.user?.user_id;
+  const cardByUser = await cardRepo.find({
+    where: { user: { id: userId }, is_deleted: false },
+  });
+  if (cardByUser.length >= 3) {
+    res.status(400).json({
+      message: 'You can only create 3 cards',
+    });
+  }
   const {
     // id card
     gender,
@@ -150,5 +158,39 @@ export const updateCardService = async (req: Request, res: Response) => {
       socialLinks: undefined,
     },
     socialLinks: cleanedLinks,
+  };
+};
+
+/**
+ *
+ * - path /api/v1/card/get-all-cards - Get Cards
+ * - method: GET
+ * - roles: [USER]
+ */
+export const getCardsForUserService = async (req: Request, res: Response) => {
+  const userId = req.user?.user_id;
+  const cardRepo = AppDataSource.getRepository(IdCard);
+  const cards = await cardRepo.find({
+    where: { user: { id: userId }, is_deleted: false },
+    relations: ['socialLinks'],
+  });
+  return {
+    message: 'Get cards successfully',
+    cards,
+  };
+};
+
+/**
+ *
+ * - path /api/v1/card/delete-card/:id - Delete Card
+ * - method: DELETE
+ * - roles: [USER]
+ */
+export const deleteCardUserService = async (req: Request, res: Response) => {
+  const cardId = req.params.id;
+  const cardRepo = AppDataSource.getRepository(IdCard);
+  await cardRepo.update({ id: cardId }, { is_deleted: true });
+  return {
+    message: 'Delete card successfully',
   };
 };
