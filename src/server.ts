@@ -97,7 +97,7 @@ app.use(limiter);
     console.log('Failed to start server', error);
 
     if (config.NODE_ENV === 'production') {
-      process.exit(1); // Exit the process with an erro
+      process.exit(1); // Exit the process with an error
     }
   }
 })();

@@ -21,6 +21,7 @@ export class IdCard {
   // @OneToOne(() => User, (user) => user.idCard)
   // @JoinColumn()
   // user?: User;
+  @JoinColumn({ name: 'user_id' })
   @ManyToOne(() => User, (user) => user.idCard, { onDelete: 'CASCADE' })
   user?: User;
 

@@ -5,8 +5,8 @@ import {
   updateUserController,
 } from '@/controller';
 import { UserRole } from '@/enum';
-import { authMiddleware } from '@/middlware/auth-middleware';
-import { roleCheck } from '@/middlware/role-middleware';
+import { authMiddleware } from '@/middleware/auth-middleware';
+import { roleCheck } from '@/middleware/role-middleware';
 import { Router } from 'express';
 const router = Router();
 

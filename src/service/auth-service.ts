@@ -173,7 +173,7 @@ export const refreshTokenHandler = async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.json({ accessToken: accessToken });
+    return { accessToken: accessToken };
   } catch (error) {
     return res.status(403).json({ message: 'Invalid refresh token' });
   }

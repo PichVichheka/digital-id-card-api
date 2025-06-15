@@ -6,6 +6,8 @@ import {
   UpdateDateColumn,
   CreateDateColumn,
   Unique,
+  JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { IdCard } from './id-card';
 
@@ -17,6 +19,7 @@ export class SocialLink {
 
   // @ManyToOne(() => User, (user) => user.socialLinks, { onDelete: 'CASCADE' })
   // user?: User;
+  @JoinColumn({ name: 'card_id' })
   @ManyToOne(() => IdCard, (card) => card.socialLinks, { onDelete: 'CASCADE' })
   card?: IdCard;
 
@@ -37,4 +40,7 @@ export class SocialLink {
 
   @CreateDateColumn()
   created_at?: Date;
+
+  // @DeleteDateColumn({ nullable: true, name: 'deleted_at' })
+  // deletedAt?: Date;
 }

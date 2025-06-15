@@ -2,44 +2,20 @@ import { AppDataSource } from '@/config/data-source';
 import { IdCard } from '@/entities/id-card';
 import { SocialLink } from '@/entities/social-link';
 import { Request, Response } from 'express';
-// export const createCardService = async (req: Request, res: Response) => {
-//   const userId = req.user?.user_id;
 
-//   const { address, phone, platform, nationality, url, icon, gender, dob } =
-//     req.body;
+type SocialLinkInput = {
+  id?: string;
+  platform: string;
+  icon: string;
+  url: string;
+};
 
-//   await AppDataSource.transaction(async (manager) => {
-//     // Step 1: Create and save card
-//     const card = manager.create(IdCard, {
-//       user: { id: userId },
-//       gender,
-//       dob,
-//       address,
-//       nationality,
-//       phone,
-//     });
-
-//     const savedCard = await manager.save(IdCard, card);
-
-//     // Step 2: Create and save social link using savedCard
-//     const socialLink = manager.create(SocialLink, {
-//       card: { id: savedCard.id },
-//       platform,
-//       url,
-//       icon,
-//     });
-
-//     const savedSocialLink = await manager.save(SocialLink, socialLink);
-
-//     // Step 3: Send response
-//     res.json({
-//       message: 'create card successfully',
-//       card: savedCard,
-//       socialLink: savedSocialLink,
-//     });
-//   });
-// };
-
+/**
+ *
+ * - path /api/v1/card/crate-card - Create Card
+ * - method: CREATE
+ * - roles: [USER]
+ */
 export const createCardService = async (req: Request, res: Response) => {
   const cardRepo = AppDataSource.getRepository(IdCard);
   const socialLinkRepo = AppDataSource.getRepository(SocialLink);
@@ -52,9 +28,6 @@ export const createCardService = async (req: Request, res: Response) => {
     phone,
     nationality,
     // social link
-    platform,
-    icon,
-    url,
     social = [],
   } = req.body;
 
@@ -83,5 +56,99 @@ export const createCardService = async (req: Request, res: Response) => {
     message: 'create card successfully',
     card: newCard,
     socialLinks: socialLinks,
+  };
+};
+
+/**
+ *
+ * - path /api/v1/card/update-card - Create Card
+ * - method: PUT
+ * - roles: [USER]
+ */
+export const updateCardService = async (req: Request, res: Response) => {
+  const cardId = req.params.id;
+  const userId = req.user?.user_id;
+
+  const { gender, dob, address, phone, nationality, social = [] } = req.body;
+
+  const cardRepo = AppDataSource.getRepository(IdCard);
+  const socialLinkRepo = AppDataSource.getRepository(SocialLink);
+
+  const card = await cardRepo.findOne({
+    where: { id: cardId, user: { id: userId } },
+    relations: ['socialLinks'],
+  });
+
+  if (!card) {
+    return res.status(404).json({ message: 'Card not found' });
+  }
+
+  // Update card basic info
+  card.gender = gender;
+  card.dob = dob;
+  card.address = address;
+  card.phone = phone;
+  card.nationality = nationality;
+  await cardRepo.save(card);
+
+  const incomingIds = social.filter((s: any) => s.id).map((s: any) => s.id);
+
+  // ❌ Soft-delete any existing social links not in req.body
+  const linksToDelete = card.socialLinks?.filter(
+    (link) => !incomingIds.includes(link.id) && !link.is_deleted,
+  ) as any;
+
+  await Promise.all(
+    linksToDelete.map((link: any) =>
+      socialLinkRepo.update(link.id, { is_deleted: true }),
+    ),
+  );
+
+  // ✅ Process incoming social links
+  const updatedLinks = await Promise.all(
+    social.map(async (item: any) => {
+      if (item.id) {
+        // Only update if it already exists AND is not soft-deleted
+        const existing = await socialLinkRepo.findOne({
+          where: { id: item.id, is_deleted: false },
+        });
+
+        if (existing) {
+          existing.platform = item.platform;
+          existing.icon = item.icon;
+          existing.url = item.url;
+          return await socialLinkRepo.save(existing);
+        }
+
+        // Don't auto-restore deleted items
+        return null;
+      } else {
+        // Create new social link
+        const newLink = socialLinkRepo.create({
+          card: { id: card.id },
+          platform: item.platform,
+          icon: item.icon,
+          url: item.url,
+        });
+        return await socialLinkRepo.save(newLink);
+      }
+    }),
+  );
+
+  // ✅ Return only non-deleted links
+  const activeLinks = await socialLinkRepo.find({
+    where: { card: { id: card.id }, is_deleted: false },
+  });
+
+  // Remove circular refs before sending
+  const cleanedLinks = activeLinks.map(({ card, ...rest }) => rest);
+
+  return {
+    message: 'Update card successfully',
+    card: {
+      ...card,
+      socialLinks: undefined,
+    },
+    socialLinks: cleanedLinks,
   };
 };
