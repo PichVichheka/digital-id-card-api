@@ -3,13 +3,6 @@ import { IdCard } from '@/entities/id-card';
 import { SocialLink } from '@/entities/social-link';
 import { Request, Response } from 'express';
 
-type SocialLinkInput = {
-  id?: string;
-  platform: string;
-  icon: string;
-  url: string;
-};
-
 /**
  *
  * - path /api/v1/card/crate-card - Create Card
@@ -170,10 +163,16 @@ export const updateCardService = async (req: Request, res: Response) => {
 export const getCardsForUserService = async (req: Request, res: Response) => {
   const userId = req.user?.user_id;
   const cardRepo = AppDataSource.getRepository(IdCard);
-  const cards = await cardRepo.find({
-    where: { user: { id: userId }, is_deleted: false },
-    relations: ['socialLinks'],
-  });
+  const cards = await cardRepo
+    .createQueryBuilder('card')
+    .leftJoinAndSelect(
+      'card.socialLinks',
+      'socialLink',
+      'socialLink.is_deleted = false',
+    )
+    .where('card.user.id = :userId', { userId })
+    .andWhere('card.is_deleted = false')
+    .getMany();
   return {
     message: 'Get cards successfully',
     cards,
@@ -187,8 +186,15 @@ export const getCardsForUserService = async (req: Request, res: Response) => {
  * - roles: [USER]
  */
 export const deleteCardUserService = async (req: Request, res: Response) => {
-  const cardId = req.params.id;
   const cardRepo = AppDataSource.getRepository(IdCard);
+  const cardId = req.params.id;
+  const userId = req.user?.user_id;
+  const ownCard = await cardRepo.findOne({
+    where: { id: cardId, user: { id: userId } },
+  });
+  if (!ownCard) {
+    return res.status(404).json({ message: 'Card not found' });
+  }
   await cardRepo.update({ id: cardId }, { is_deleted: true });
   return {
     message: 'Delete card successfully',
