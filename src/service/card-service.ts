@@ -1,6 +1,7 @@
 import { AppDataSource } from '@/config/data-source';
 import { IdCard } from '@/entities/id-card';
 import { SocialLink } from '@/entities/social-link';
+import { paginate } from '@/util';
 import { Request, Response } from 'express';
 
 /**
@@ -194,6 +195,64 @@ export const deleteCardUserService = async (req: Request, res: Response) => {
   });
   if (!ownCard) {
     return res.status(404).json({ message: 'Card not found' });
+  }
+  await cardRepo.update({ id: cardId }, { is_deleted: true });
+  return {
+    message: 'Delete card successfully',
+  };
+};
+
+/**
+ *
+ * - path /api/v1/card/admin-get-cards/ - gets all Card by admin
+ * - method: GET
+ * - roles: [ADMIN]
+ */
+export const getAllCardsAdminService = async ({
+  page,
+  limit,
+  sortBy,
+  sortOrder,
+  filters,
+}: {
+  page: number;
+  limit: number;
+  sortBy: string;
+  sortOrder: 'ASC' | 'DESC';
+  filters: Record<string, string>;
+}) => {
+  const cardRepo = AppDataSource.getRepository(IdCard);
+  const cards = await paginate(cardRepo, {
+    page,
+    limit,
+    sortBy,
+    sortOrder,
+    filters,
+    relations: ['user', 'socialLinks'],
+  });
+  return {
+    message: 'get cards successfully',
+    cards,
+  };
+};
+
+/**
+ *
+ * - path /api/v1/card/admin-get-cards/ - gets all Card by admin
+ * - method: GET
+ * - roles: [ADMIN]
+ */
+
+export const deleteAdminCardService = async (req: Request, res: Response) => {
+  const cardId = req.params.id;
+  const cardRepo = AppDataSource.getRepository(IdCard);
+  const card = await cardRepo.findOne({
+    where: { id: cardId },
+  });
+  if (!card) {
+    return {
+      message: 'Card not found',
+    };
   }
   await cardRepo.update({ id: cardId }, { is_deleted: true });
   return {

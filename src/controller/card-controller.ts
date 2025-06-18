@@ -1,6 +1,8 @@
 import {
   createCardService,
+  deleteAdminCardService,
   deleteCardUserService,
+  getAllCardsAdminService,
   getCardsForUserService,
   updateCardService,
 } from '@/service/card-service';
@@ -23,5 +25,30 @@ export const deleteCardUserController = async (req: Request, res: Response) => {
 
 export const getCardsUserController = async (req: Request, res: Response) => {
   const result = await getCardsForUserService(req, res);
+  res.status(201).json(result);
+};
+
+export const getCardsAdminController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const { page, limit, sortBy, sortOrder, ...filters } = req.query;
+  const result = await getAllCardsAdminService({
+    page: parseInt(page as string, 10) || 1,
+    limit: parseInt(limit as string, 10) || 10,
+    sortBy: sortBy as string,
+    sortOrder: (sortOrder?.toString().toUpperCase() === 'ASC'
+      ? 'ASC'
+      : 'DESC') as 'ASC' | 'DESC',
+    filters: filters as Record<string, string>,
+  });
+  res.status(201).json(result);
+};
+
+export const deleteAdminCardController = async (
+  req: Request,
+  res: Response,
+) => {
+  const result = await deleteAdminCardService(req, res);
   res.status(201).json(result);
 };
