@@ -16,6 +16,7 @@ const router = Router();
 import authRouter from './auth-route';
 import userRouter from './user-route';
 import cardRouter from './card-route';
+import uploadRouter from './upload-route';
 
 /**
  * Root route
@@ -33,5 +34,6 @@ router.get('/', (req, res) => {
 router.use('/auth', authRouter);
 router.use('/user', userRouter);
 router.use('/card', cardRouter);
+router.use('/upload', uploadRouter);
 
 export default router;
