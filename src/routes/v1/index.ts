@@ -17,6 +17,7 @@ import authRouter from './auth-route';
 import userRouter from './user-route';
 import cardRouter from './card-route';
 import uploadRouter from './upload-route';
+import dashboardRouter from './dashboard-route';
 
 /**
  * Root route
@@ -35,5 +36,6 @@ router.use('/auth', authRouter);
 router.use('/user', userRouter);
 router.use('/card', cardRouter);
 router.use('/upload', uploadRouter);
+router.use('/dashboard', dashboardRouter);
 
 export default router;

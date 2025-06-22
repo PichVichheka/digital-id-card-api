@@ -53,6 +53,7 @@ const corsOptions: CorsOptions = {
       console.log(`CORS Error : ${origin} is not allowed by CORS`);
     }
   },
+  credentials: true,
 };
 
 //Apply cors middleware
