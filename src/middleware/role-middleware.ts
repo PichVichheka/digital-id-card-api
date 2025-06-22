@@ -25,7 +25,7 @@ export const roleCheck = (allowedRoles: string[]) => {
         !decoded.roles ||
         !decoded.roles.some((role) => allowedRoles.includes(role))
       ) {
-        res.status(403).json({ message: 'Forbidden: Insufficient role' });
+        res.status(401).json({ message: 'Forbidden: Insufficient role' });
       }
 
       // Optionally attach user info to req for later use

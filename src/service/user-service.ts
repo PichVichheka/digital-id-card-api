@@ -42,7 +42,13 @@ export const getUsersService = async ({
 export const meService = async (req: Request) => {
   const userId = req.user?.user_id;
 
-  return await AppDataSource.getRepository(User).findOneBy({ id: userId });
+  const data = await AppDataSource.getRepository(User).findOneBy({
+    id: userId,
+  });
+  return {
+    message: 'get profile successfully',
+    data,
+  };
 };
 
 /**

@@ -16,7 +16,12 @@ router.get(
   roleCheck([UserRole.ADMIN, UserRole.SUPER_ADMIN]),
   getUsersController,
 );
-router.get('/me', authMiddleware, meController);
+router.get(
+  '/me',
+  authMiddleware,
+  meController,
+  // roleCheck([UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.USER]),
+);
 router.put('/update-profile', authMiddleware, updateUserController);
 router.delete(
   '/delete-user/:id',

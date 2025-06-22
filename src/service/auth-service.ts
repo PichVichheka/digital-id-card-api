@@ -168,16 +168,23 @@ export const refreshTokenHandler = async (req: Request, res: Response) => {
       username: user.user_name,
     });
 
+    // res.cookie('accessToken', accessToken, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: 'strict',
+    //   maxAge: 7 * 24 * 60 * 60 * 1000,
+    // });
     res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: false,
+      // secure: process.env.NODE_ENV === 'production' ? true : false,
+      secure: true,
+      sameSite: 'none',
+      maxAge: 15 * 60 * 1000, // 15 minutes
     });
 
-    return { accessToken: accessToken };
+    return { data: accessToken };
   } catch (error) {
-    return res.status(403).json({ message: 'Invalid refresh token' });
+    return res.status(401).json({ message: 'Invalid refresh token' });
   }
 };
 
