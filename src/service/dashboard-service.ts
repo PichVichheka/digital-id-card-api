@@ -64,14 +64,6 @@ export const getDashboardAnalyticsService = async (
       },
     ];
     // --- Growth Chart (past 7 days) ---
-    // const usersLast7DaysRaw = await userRepo
-    //   .createQueryBuilder('user')
-    //   .select('DATE(user.created_at)', 'date')
-    //   .addSelect('COUNT(*)', 'count')
-    //   .where('user.created_at >= :sevenDaysAgo', { sevenDaysAgo })
-    //   .groupBy('DATE(user.created_at)')
-    //   .orderBy('DATE(user.created_at)', 'ASC')
-    //   .getRawMany();
     const usersLast7DaysRaw = await userRepo
       .createQueryBuilder('user')
       .select(
@@ -93,10 +85,18 @@ export const getDashboardAnalyticsService = async (
         count: parseInt(found?.count || '0', 10),
       };
     });
+
+    const recentUsers = await userRepo.find({
+      order: { created_at: 'DESC' },
+      where: { is_deleted: false },
+      take: 5,
+      select: ['id', 'email', 'full_name', 'created_at', 'avatar'],
+    });
     return {
       message: 'Get all data successfully',
       summary,
       userGrowth: usersLast7Days,
+      recentUsers,
     };
   } catch (error) {
     console.error('Dashboard Error:', error);
