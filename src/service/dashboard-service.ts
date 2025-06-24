@@ -64,13 +64,24 @@ export const getDashboardAnalyticsService = async (
       },
     ];
     // --- Growth Chart (past 7 days) ---
+    // const usersLast7DaysRaw = await userRepo
+    //   .createQueryBuilder('user')
+    //   .select('DATE(user.created_at)', 'date')
+    //   .addSelect('COUNT(*)', 'count')
+    //   .where('user.created_at >= :sevenDaysAgo', { sevenDaysAgo })
+    //   .groupBy('DATE(user.created_at)')
+    //   .orderBy('DATE(user.created_at)', 'ASC')
+    //   .getRawMany();
     const usersLast7DaysRaw = await userRepo
       .createQueryBuilder('user')
-      .select('DATE(user.created_at)', 'date')
+      .select(
+        "TO_CHAR(user.created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Phnom_Penh', 'YYYY-MM-DD')", //convert time to UTC+7 time in Cambodia Phnompenh
+        'date',
+      )
       .addSelect('COUNT(*)', 'count')
       .where('user.created_at >= :sevenDaysAgo', { sevenDaysAgo })
-      .groupBy('DATE(user.created_at)')
-      .orderBy('DATE(user.created_at)', 'ASC')
+      .groupBy('date')
+      .orderBy('date', 'ASC')
       .getRawMany();
 
     // Normalize date to format: ['2024-06-14', 12]
