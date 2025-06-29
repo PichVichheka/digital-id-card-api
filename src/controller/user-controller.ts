@@ -2,7 +2,8 @@ import {
   deleteUserService,
   getUsersService,
   meService,
-  updateUserService,
+  updateProfileService,
+  updateUserByAdminService,
 } from '@/service/user-service';
 import { Request, Response } from 'express';
 
@@ -31,8 +32,16 @@ export const meController = async (
   res.status(201).json(result);
 };
 
-export const updateUserController = async (req: Request, res: Response) => {
-  const result = await updateUserService(req, res);
+export const updateProfileController = async (req: Request, res: Response) => {
+  const result = await updateProfileService(req, res);
+  res.status(201).json(result);
+};
+
+export const updateUserByAdminController = async (
+  req: Request,
+  res: Response,
+) => {
+  const result = await updateUserByAdminService(req, res);
   res.status(201).json(result);
 };
 

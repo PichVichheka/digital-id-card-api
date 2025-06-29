@@ -57,7 +57,7 @@ export const meService = async (req: Request) => {
  * - method: PUT
  * - roles: [USER, ADMIN,SUPER_ADMIN]
  */
-export const updateUserService = async (req: Request, res: Response) => {
+export const updateProfileService = async (req: Request, res: Response) => {
   const userId = req.user?.user_id;
   const { full_name, email, user_name, avatar } = req.body;
   const users = await AppDataSource.getRepository(User).find();
@@ -75,6 +75,45 @@ export const updateUserService = async (req: Request, res: Response) => {
       email,
       user_name,
       avatar,
+      updated_at: new Date(),
+    },
+  );
+  const updatedUser = await AppDataSource.getRepository(User).findOneBy({
+    id: userId,
+  });
+
+  return res.status(200).json({
+    message: 'User updated successfully',
+    user: updatedUser,
+  });
+};
+
+/**
+ *
+ * - path /api/v1/users/update-user - Update user
+ * - method: DELETE
+ * - roles: [ADMIN,SUPER_ADMIN]
+ */
+
+export const updateUserByAdminService = async (req: Request, res: Response) => {
+  const userId = req.params.id;
+  const { full_name, email, user_name, avatar, is_active } = req.body;
+  const users = await AppDataSource.getRepository(User).find();
+
+  const userNameExist = users.find((user) => user.user_name == user_name);
+  if (userNameExist && userNameExist.id !== userId) {
+    res.status(409).json({
+      message: 'Username already exists',
+    });
+  }
+  await AppDataSource.getRepository(User).update(
+    { id: userId },
+    {
+      full_name,
+      email,
+      user_name,
+      avatar,
+      is_active,
       updated_at: new Date(),
     },
   );

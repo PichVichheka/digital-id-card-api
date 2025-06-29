@@ -90,7 +90,7 @@ export const getDashboardAnalyticsService = async (
       order: { created_at: 'DESC' },
       where: { is_deleted: false },
       take: 5,
-      select: ['id', 'email', 'full_name', 'created_at', 'avatar'],
+      select: ['id', 'email', 'full_name', 'created_at', 'avatar', 'is_active'],
     });
     return {
       message: 'Get all data successfully',

@@ -35,6 +35,9 @@ export class User {
   @Column({ default: false })
   is_deleted?: boolean;
 
+  @Column({ default: true })
+  is_active?: boolean;
+
   // @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
   // role?: UserRole;
 
