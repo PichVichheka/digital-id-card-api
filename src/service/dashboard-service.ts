@@ -3,7 +3,7 @@ import { IdCard } from '@/entities/id-card';
 import { User } from '@/entities/user';
 import { Response, Request } from 'express';
 import { Between, MoreThanOrEqual } from 'typeorm';
-import { subDays, startOfDay, format } from 'date-fns';
+import { subDays, format } from 'date-fns';
 
 export const getDashboardAnalyticsService = async (
   req: Request,

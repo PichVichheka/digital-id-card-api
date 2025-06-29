@@ -51,4 +51,4 @@ const seedUsers = async () => {
 seedUsers();
 
 // run script
-// npx ts-node scripts/seed-users.ts
+// npx ts-node -r tsconfig-paths/register src/scripts/seed-users.ts
