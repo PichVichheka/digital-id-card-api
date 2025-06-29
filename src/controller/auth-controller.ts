@@ -3,8 +3,9 @@ import {
   logoutService,
   refreshTokenHandler,
   registerService,
+  runRegisterService,
 } from '@/service/auth-service';
-import type { NextFunction, Request, Response } from 'express';
+import type { Request, Response } from 'express';
 
 export const registerController = async (
   req: Request,

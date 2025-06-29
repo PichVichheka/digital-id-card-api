@@ -6,6 +6,72 @@ import { UserRole } from '@/enum';
 import { Request, Response } from 'express';
 import { verifyRefreshToken } from '@/util/jwt';
 import { saveDeviceService } from './device-service';
+import { RegisterInput } from '@/types/inputRegister';
+import { Device } from '@/entities/device';
+
+/** Script for add new users from users.json */
+export const runRegisterService = async (input: RegisterInput) => {
+  console.log('work=======');
+  const userRepo = AppDataSource.getRepository(User);
+
+  // Check for existing user by email
+  const existingUser = await userRepo.findOne({
+    where: { email: input.email },
+  });
+
+  if (existingUser) {
+    throw new Error(`User with email "${input.email}" already exists.`);
+  }
+  // Hash the password
+  const hashedPassword = await bcrypt.hash(input.password, 12);
+
+  // Create and save the user
+  const newUser = userRepo.create({
+    email: input.email,
+    password: hashedPassword,
+    user_name: input.user_name,
+    full_name: input.full_name,
+  });
+
+  await userRepo.save(newUser);
+
+  // Generate tokens
+  const accessToken = generateAccessToken({
+    user_id: newUser.id.toString(),
+    roles: newUser.roles as UserRole[],
+    email: newUser.email,
+    username: newUser.user_name,
+  });
+
+  const refreshToken = generateRefreshToken({
+    user_id: newUser.id.toString(),
+    roles: newUser.roles as UserRole[],
+    email: newUser.email,
+    username: newUser.user_name,
+  });
+
+  //call device service
+  // const device = await saveDeviceService(newUser.id, req);
+  const deviceRepo = AppDataSource.getRepository(Device);
+  const device = deviceRepo.create({
+    device_name: input.device_name,
+    device_type: input.device_type,
+    ip_address: input.ip_address,
+    browser: input.browser,
+    os: input.os,
+    user: { id: newUser.id },
+  });
+  return {
+    status: 201,
+    message: 'Register success',
+    data: {
+      newUser,
+      accessToken,
+      refreshToken,
+      device,
+    },
+  };
+};
 
 export const registerService = async (req: Request, res: Response) => {
   try {
@@ -107,17 +173,17 @@ export const loginService = async (req: Request, res: Response) => {
     });
 
     res.cookie('refreshToken', refreshToken, {
-      httpOnly: false,
-      // secure: process.env.NODE_ENV === 'production' ? true : false,
-      secure: true,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production' ? true : false,
+      // secure: true,
       sameSite: 'none',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     res.cookie('accessToken', accessToken, {
-      httpOnly: false,
-      // secure: process.env.NODE_ENV === 'production' ? true : false,
-      secure: true,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production' ? true : false,
+      // secure: true,
       sameSite: 'none',
       maxAge: 15 * 60 * 1000, // 15 minutes
     });
