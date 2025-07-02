@@ -17,11 +17,7 @@ export const createCardService = async (req: Request, res: Response) => {
   const cardByUser = await cardRepo.find({
     where: { user: { id: userId }, is_deleted: false },
   });
-  if (cardByUser.length >= 3) {
-    res.status(400).json({
-      message: 'You can only create 3 cards',
-    });
-  }
+
   const {
     // id card
     gender,
@@ -29,9 +25,26 @@ export const createCardService = async (req: Request, res: Response) => {
     address,
     phone,
     nationality,
+    card_type,
     // social link
     social = [],
   } = req.body;
+
+  if (cardByUser.length >= 3) {
+    res.status(400).json({
+      message: 'You can only create 3 cards',
+    });
+  }
+
+  // Check for duplicate card type
+  const hasSameCardType = cardByUser.some(
+    (card) => card.card_type === card_type,
+  );
+  if (hasSameCardType) {
+    return res.status(400).json({
+      message: `You already have a card of type "${card_type}".`,
+    });
+  }
 
   const card = cardRepo.create({
     user: { id: userId },
@@ -39,6 +52,7 @@ export const createCardService = async (req: Request, res: Response) => {
     dob,
     address,
     phone,
+    card_type,
     nationality,
   });
   const newCard = await cardRepo.save(card);

@@ -12,6 +12,7 @@ import {
 import { User } from './user';
 import { Gender } from '@/enum';
 import { SocialLink } from './social-link';
+import { CardType } from '@/enum/card-type-enum';
 
 @Entity()
 export class IdCard {
@@ -49,6 +50,14 @@ export class IdCard {
 
   @Column({ nullable: true })
   qr_code?: string;
+
+  @Column({
+    type: 'enum',
+    enum: CardType,
+    array: false,
+    default: [CardType.MODERN],
+  })
+  card_type?: CardType;
 
   @Column({ default: true })
   is_active?: boolean;
