@@ -3,28 +3,39 @@ import { Device } from '@/entities/device';
 import { User } from '@/entities/user';
 import { UserRole } from '@/enum';
 import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
+dotenv.config();
 
 export const seedAdminUser = async () => {
   const userRepo = AppDataSource.getRepository(User);
   const deviceRepo = AppDataSource.getRepository(Device);
 
   const existingAdmin = await userRepo.findOne({
-    where: [{ email: 'admin@example.com' }, { user_name: 'admin' }],
+    where: [
+      { email: process.env.EMAIL_ADMIN as string },
+      { user_name: process.env.USER_NAME_ADMIN as string },
+    ],
   });
   if (existingAdmin) {
     existingAdmin.roles = [UserRole.ADMIN, UserRole.USER];
-    existingAdmin.password = await bcrypt.hash('admin123', 10);
+    existingAdmin.password = await bcrypt.hash(
+      process.env.PASSWORD_ADMIN as string,
+      10,
+    );
     await userRepo.save(existingAdmin);
     console.log('♻️ Admin user updated');
   }
 
   if (!existingAdmin) {
-    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const hashedPassword = await bcrypt.hash(
+      process.env.PASSWORD_ADMIN as string,
+      10,
+    );
 
     const adminUser = userRepo.create({
-      full_name: 'Admin User',
-      user_name: 'admin',
-      email: 'admin@gmail.com',
+      full_name: process.env.FULL_NAME_ADMIN as string,
+      user_name: process.env.USER_NAME_ADMIN as string,
+      email: process.env.EMAIL_ADMIN as string,
       password: hashedPassword,
       roles: [UserRole.ADMIN, UserRole.USER],
       is_active: true,
