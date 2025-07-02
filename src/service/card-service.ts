@@ -3,6 +3,7 @@ import { IdCard } from '@/entities/id-card';
 import { SocialLink } from '@/entities/social-link';
 import { paginate } from '@/util';
 import { Request, Response } from 'express';
+import { Not } from 'typeorm';
 
 /**
  *
@@ -85,7 +86,15 @@ export const updateCardService = async (req: Request, res: Response) => {
   const cardId = req.params.id;
   const userId = req.user?.user_id;
 
-  const { gender, dob, address, phone, nationality, social = [] } = req.body;
+  const {
+    gender,
+    dob,
+    address,
+    phone,
+    nationality,
+    card_type,
+    social = [],
+  } = req.body;
 
   const cardRepo = AppDataSource.getRepository(IdCard);
   const socialLinkRepo = AppDataSource.getRepository(SocialLink);
@@ -97,6 +106,26 @@ export const updateCardService = async (req: Request, res: Response) => {
 
   if (!card) {
     return res.status(404).json({ message: 'Card not found' });
+  }
+
+  // ❗ Prevent changing to a card_type that already exists in another card
+  if (card_type && card_type !== card.card_type) {
+    const otherCardWithSameType = await cardRepo.findOne({
+      where: {
+        user: { id: userId },
+        card_type,
+        is_deleted: false,
+        id: Not(cardId),
+      },
+    });
+
+    if (otherCardWithSameType) {
+      return res.status(400).json({
+        message: `You already have another card of type "${card_type}".`,
+      });
+    }
+
+    card.card_type = card_type;
   }
 
   // Update card basic info
