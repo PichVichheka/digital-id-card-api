@@ -28,6 +28,7 @@ import v1Router from '@/routes/v1';
  */
 import type { CorsOptions } from 'cors';
 import { errorHandler } from './util/error-handler';
+import { seedAdminUser } from './data/seed-admin';
 
 /**
  * Express app initalization
@@ -82,8 +83,9 @@ app.use(limiter);
   try {
     //Initialize database connection
     await config.DATA_SOURCE.initialize()
-      .then(() => {
+      .then(async () => {
         console.log('✅ Database connection successful');
+        await seedAdminUser(); // ⬅️ Seed admin user
       })
       .catch((error) => {
         console.error('❌ Database connection failed:', error);
