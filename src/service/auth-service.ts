@@ -11,7 +11,6 @@ import { Device } from '@/entities/device';
 
 /** Script for add new users from users.json */
 export const runRegisterService = async (input: RegisterInput) => {
-  console.log('work=======');
   const userRepo = AppDataSource.getRepository(User);
 
   // Check for existing user by email
