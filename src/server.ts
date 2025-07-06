@@ -93,7 +93,7 @@ app.use(limiter);
 
     app.use('/api/v1', v1Router);
 
-    app.listen(3000, () => {
+    app.listen(config.PORT, () => {
       console.log(`Server is running on port ${config.PORT}`);
     });
   } catch (error) {

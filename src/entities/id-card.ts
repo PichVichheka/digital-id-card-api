@@ -42,6 +42,18 @@ export class IdCard {
   @Column()
   phone?: string;
 
+  @Column({ default: 'UnKnown' })
+  job?: string;
+
+  @Column({ default: 'UnKnown' })
+  bio?: string;
+
+  @Column({ default: 'UnKnown' })
+  web_site?: string;
+
+  @Column({ default: 'UnKnown' })
+  company?: string;
+
   @Column()
   nationality?: string;
 

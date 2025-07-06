@@ -2,6 +2,7 @@ import {
   createCardController,
   deleteAdminCardController,
   deleteCardUserController,
+  getCardByIdController,
   getCardsAdminController,
   getCardsUserController,
   updateCardController,
@@ -31,5 +32,5 @@ router.delete(
   roleCheck([UserRole.SUPER_ADMIN, UserRole.ADMIN]),
   deleteAdminCardController,
 );
-
+router.get('/get-card/:id', authMiddleware, getCardByIdController);
 export default router;

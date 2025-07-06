@@ -22,11 +22,15 @@ export const createCardService = async (req: Request, res: Response) => {
   const {
     // id card
     gender,
+    company,
     dob,
     address,
     phone,
     nationality,
     card_type,
+    web_site,
+    bio,
+    job,
     // social link
     social = [],
   } = req.body;
@@ -51,9 +55,13 @@ export const createCardService = async (req: Request, res: Response) => {
     user: { id: userId },
     gender,
     dob,
+    company,
     address,
     phone,
     card_type,
+    web_site,
+    job,
+    bio,
     nationality,
   });
   const newCard = await cardRepo.save(card);
@@ -92,6 +100,10 @@ export const updateCardService = async (req: Request, res: Response) => {
     address,
     phone,
     nationality,
+    bio,
+    web_site,
+    job,
+    company,
     card_type,
     social = [],
   } = req.body;
@@ -130,10 +142,14 @@ export const updateCardService = async (req: Request, res: Response) => {
 
   // Update card basic info
   card.gender = gender;
+  card.company = company;
   card.dob = dob;
   card.address = address;
   card.phone = phone;
   card.nationality = nationality;
+  card.web_site = web_site;
+  card.job = job;
+  card.bio = bio;
   await cardRepo.save(card);
 
   const incomingIds = social.filter((s: any) => s.id).map((s: any) => s.id);
@@ -300,5 +316,23 @@ export const deleteAdminCardService = async (req: Request, res: Response) => {
   await cardRepo.update({ id: cardId }, { is_deleted: true });
   return {
     message: 'Delete card successfully',
+  };
+};
+
+export const getCardByIdService = async (req: Request, res: Response) => {
+  const cardId = req.params.id;
+  const cardRepo = AppDataSource.getRepository(IdCard);
+  const card = await cardRepo.findOne({
+    where: { id: cardId },
+    relations: ['socialLinks'],
+  });
+  if (!card) {
+    return {
+      message: 'Card not found',
+    };
+  }
+  return {
+    message: 'Get card successfully',
+    card,
   };
 };
