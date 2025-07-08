@@ -354,7 +354,7 @@ export const getCardByUserNameService = async (req: Request, res: Response) => {
         user_name: userName,
       },
     },
-    relations: ['user'],
+    relations: ['user', 'socialLinks'],
   });
   if (!card) {
     return 'card not found';
