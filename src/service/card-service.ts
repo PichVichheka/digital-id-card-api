@@ -1,6 +1,7 @@
 import { AppDataSource } from '@/config/data-source';
 import { IdCard } from '@/entities/id-card';
 import { SocialLink } from '@/entities/social-link';
+import { User } from '@/entities/user';
 import { paginate } from '@/util';
 import { Request, Response } from 'express';
 import { Not } from 'typeorm';
@@ -333,6 +334,33 @@ export const getCardByIdService = async (req: Request, res: Response) => {
   }
   return {
     message: 'Get card successfully',
+    card,
+  };
+};
+
+export const getCardByUserNameService = async (req: Request, res: Response) => {
+  const userName = req.params.userName;
+  const cardRepo = AppDataSource.getRepository(IdCard);
+  const userRepo = AppDataSource.getRepository(User);
+  const exitUser = await userRepo.findOne({ where: { user_name: userName } });
+  if (!exitUser) {
+    return {
+      message: 'Card not found',
+    };
+  }
+  const card = await cardRepo.find({
+    where: {
+      user: {
+        user_name: userName,
+      },
+    },
+    relations: ['user'],
+  });
+  if (!card) {
+    return 'card not found';
+  }
+  return {
+    message: 'Get Card successfully',
     card,
   };
 };

@@ -4,6 +4,7 @@ import {
   deleteCardUserService,
   getAllCardsAdminService,
   getCardByIdService,
+  getCardByUserNameService,
   getCardsForUserService,
   updateCardService,
 } from '@/service/card-service';
@@ -56,5 +57,13 @@ export const deleteAdminCardController = async (
 
 export const getCardByIdController = async (req: Request, res: Response) => {
   const result = await getCardByIdService(req, res);
+  res.status(200).json(result);
+};
+
+export const getCardByUserNameController = async (
+  req: Request,
+  res: Response,
+) => {
+  const result = await getCardByUserNameService(req, res);
   res.status(200).json(result);
 };

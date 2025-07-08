@@ -3,6 +3,7 @@ import {
   deleteAdminCardController,
   deleteCardUserController,
   getCardByIdController,
+  getCardByUserNameController,
   getCardsAdminController,
   getCardsUserController,
   updateCardController,
@@ -33,4 +34,5 @@ router.delete(
   deleteAdminCardController,
 );
 router.get('/get-card/:id', authMiddleware, getCardByIdController);
+router.get('/get-card-username/:userName', getCardByUserNameController);
 export default router;
