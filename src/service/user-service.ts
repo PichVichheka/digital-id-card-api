@@ -58,11 +58,19 @@ export const getUsersService = async ({
 export const meService = async (req: Request) => {
   const userId = req.user?.user_id;
 
+  if (!userId) {
+    throw new Error('User ID not found in request');
+  }
+
   const userRepo = AppDataSource.getRepository(User);
 
   const data = await userRepo
     .createQueryBuilder('user')
-    .leftJoinAndSelect('user.idCard', 'idCard')
+    .leftJoinAndSelect(
+      'user.idCard',
+      'idCard',
+      'idCard.is_deleted = false', // This ensures even users without idCard are included
+    )
     .leftJoinAndSelect(
       'idCard.socialLinks',
       'socialLinks',
@@ -85,7 +93,8 @@ export const meService = async (req: Request) => {
  */
 export const updateProfileService = async (req: Request, res: Response) => {
   const userId = req.user?.user_id;
-  const { full_name, email, user_name, avatar } = req.body;
+  // const { full_name, email, user_name, avatar } = req.body;
+  const { full_name, email, user_name, avatar, cover_image } = req.body;
   const users = await AppDataSource.getRepository(User).find();
   // const user = users.find((user) => user.id == userId);
   const userNameExist = users.find((user) => user.user_name == user_name);
@@ -101,6 +110,8 @@ export const updateProfileService = async (req: Request, res: Response) => {
       email,
       user_name,
       avatar,
+      cover_image, // <-- Add this line
+
       updated_at: new Date(),
     },
   );
@@ -123,7 +134,8 @@ export const updateProfileService = async (req: Request, res: Response) => {
 
 export const updateUserByAdminService = async (req: Request, res: Response) => {
   const userId = req.params.id;
-  const { full_name, email, user_name, avatar, is_active } = req.body;
+  // const { full_name, email, user_name, avatar, is_active } = req.body;
+  const { full_name, email, user_name, avatar, is_active, cover_image } = req.body;
   const users = await AppDataSource.getRepository(User).find();
 
   const userNameExist = users.find((user) => user.user_name == user_name);
@@ -140,6 +152,8 @@ export const updateUserByAdminService = async (req: Request, res: Response) => {
       user_name,
       avatar,
       is_active,
+      cover_image, // <-- Add this line
+
       updated_at: new Date(),
     },
   );

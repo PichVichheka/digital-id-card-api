@@ -32,6 +32,9 @@ export class User {
   @Column({ nullable: true })
   avatar?: string;
 
+  @Column({ nullable: true }) // <-- Add this
+cover_image?: string;
+
   @Column({ default: false })
   is_deleted?: boolean;
 
