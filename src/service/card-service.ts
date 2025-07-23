@@ -350,6 +350,7 @@ export const getCardByUserNameService = async (req: Request, res: Response) => {
   }
   const card = await cardRepo.find({
     where: {
+      is_deleted: false,
       user: {
         user_name: userName,
       },
